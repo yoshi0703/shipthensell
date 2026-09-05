@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "campaign": "my-product",
   "product": {
     "name": "",
@@ -46,7 +46,14 @@
     "business_start": "10:00",
     "business_end": "17:00",
     "duration_minutes": 30,
-    "candidate_count": 3
+    "candidate_count": 3,
+    "weekdays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
   },
   "enabled": false
 }

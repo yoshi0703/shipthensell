@@ -39,9 +39,11 @@ remains pending. The setup itself sends no sales messages.
 
 ```sh
 python3 scripts/shipthensell.py init
-# Fill .shipthensell/config.json with Codex or your editor.
+# Fill .shipthensell/config.json, retaining enabled=false.
 python3 scripts/shipthensell.py validate
+# Complete live checks, save enabled=true, then generate final pins.
 python3 scripts/shipthensell.py plan
+# Mirror final config hash in CRM Settings and read back before activation.
 python3 -m unittest discover -s tests -v
 ```
 
@@ -66,8 +68,11 @@ scheduled tasks.
 
 - Missing connector/account: finish authentication in Codex; never copy tokens
   into JSON. A different signed-in mailbox is an error, not a fallback.
-- Research incomplete: outreach does not run. Inspect Runs and the cursors.
+- Research below quota: reconciled saved rows remain eligible. Missing worker
+  evidence or active writers block that source run; inspect Runs and cursors.
 - Pending approval: review the full batch in its task. No answer means no send.
+  Confirmed closed checkpoints permit reply monitoring; resume through the sole
+  coordinator, never by reviving an old worker.
 - Unknown delivery: reconcile the existing attempt with real evidence. Never
   retry automatically, even if a draft remains or CRM success was not recorded.
 - Duplicate schedule/run/ledger ID: pause the campaign and reconcile ownership.
@@ -86,3 +91,25 @@ validator requires the same mailbox for sender.email and gmail_account; aliases
 are not supported in v1. Google Drive may use a separate authorized account.
 `reply.auto_send_authorization` holds the user's actual scoped authorization text,
 never a credential. Leave it empty in draft_only mode.
+
+## v2 operating changes
+
+Research counts are ceilings; reconciled closed partial runs can supply verified
+prepared rows. Unattempted backlog from earlier dates remains eligible, ordered
+by immutable prepared_at, subject to current evidence, cooldown and blocklist.
+The attempt ceiling is per campaign-local day and shard across all runs/resumes.
+Coordinator approval may cover exact worker subsets only if the host supports
+handoff; otherwise worker-local approval is retained. These three changes widen
+workflow eligibility/approval portability, not external action permissions.
+
+The approval payload is v2 and includes field bindings. Read the CRM migration
+before updating an existing installation. `reply.weekdays` uses 0=Monday through
+6=Sunday; the example uses Monday–Friday. Preserve the user's operating preference.
+Calendar access is checked only when producing scheduling proposals.
+
+Offline setup dry run: use synthetic complete config with enabled=false; structural
+validation must pass and plan generation must fail. Save enabled=true in an isolated
+temporary clone, generate three PAUSED phase-pinned plans and compare the final file
+hash. Fake CRM Settings must store/read back that hash. No registration, connector
+writes or messages are performed by the test. Live identity/timezone/registration
+checks remain setup requirements; offline success does not prove them.

@@ -27,15 +27,17 @@ without asking the same question twice. Never run a live campaign during setup.
    Select a supported model/effort. Verify the scheduler timezone against the
    chosen timezone in the app. A timezone in prompt prose is not a scheduler
    setting; stop if the app cannot honor it. Do not approximate DST with UTC.
-5. Validate config, initialize the exact CRM headers and Settings, then read them
-   back. Record config hash and account identities. Set `enabled` true only when
-   ready, then run `python3 scripts/shipthensell.py plan`.
+5. Save the completed config with enabled=false, then run `validate` for structural
+   checks. Initialize the exact CRM headers and read back account identities.
+   After live checks pass, save enabled=true, generate `plan`, then record that
+   final file hash and enabled value in CRM Settings and read back both. All
+   schedule pins must use this same final config; no hash from the disabled file.
 6. This setup request explicitly asks for three standalone project schedules.
    Discover the current `automation_update` tool and use its live schema.
    Use project cron automations in the local environment; do not use heartbeat
    tasks. Translate the plan's schedule intent into the scheduler's supported
    recurrence. Do not write `automation.toml`, use shell cron or invent an API.
-   Use each plan prompt verbatim; it pins every workflow plus the private config.
+   Use each plan prompt verbatim; it pins shared dependencies, its phase dependencies and private config.
 7. Read `.shipthensell/installation.json` if present, and inspect the current
    automation inventory by the tool's documented mechanism before creating.
    Match campaign marker + project + phase. Update matching IDs in place; never
@@ -49,7 +51,9 @@ without asking the same question twice. Never run a live campaign during setup.
    run succeeded from successful registration.
 
 Reruns preserve unrelated automations and existing preferences. A code/config
-change requires reviewing the diff, regenerating the plan, updating all three
-prompts and CRM Settings hash together. Missing tools or unreadable state blocks
+change requires reviewing the diff and regenerating the plan while affected tasks
+are paused. Update affected phase prompts in place; shared/config/schema changes
+require all three prompts and CRM Settings to be consistent. Read docs/crm.md
+for the v2 migration before resuming an existing installation. Missing tools or unreadable state blocks
 activation, not local setup work. To stop, update only these saved IDs to PAUSED
 through the tool and read back; keep CRM and logs intact.

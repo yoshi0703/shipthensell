@@ -27,8 +27,8 @@ answer, timeout or absence of objection is not approval. Respect host tool rules
 if an approval tool is unavailable, leave the work pending for the user.
 
 Use Google Drive/Sheets connectors for CRM, Gmail for email and Calendar for
-free/busy. Do not automate the CRM website or scrape mailbox credentials. Stop
-on identity mismatch, missing tools or inconsistent state. No silent account,
+free/busy. Do not automate the CRM website or scrape mailbox credentials. Use the stop scopes in workflows/common.md: isolate an item or phase failure;
+identity mismatch or shared-state corruption stops campaign external actions. No silent account,
 provider or model fallback. Keep private settings and logs in `.shipthensell/`.
 Never commit customer data, contact details, connector IDs, run logs or secrets.
 

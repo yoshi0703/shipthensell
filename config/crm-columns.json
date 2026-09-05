@@ -9,6 +9,7 @@
     "official_url",
     "form_url",
     "sender_fields",
+    "field_bindings",
     "body",
     "consent_checks",
     "payload_sha256",
@@ -25,7 +26,8 @@
     "original_message_id",
     "contact_email",
     "last_reply_at",
-    "latest_reply_message_id"
+    "latest_reply_message_id",
+    "prepared_at"
   ],
   "Runs": [
     "run_id",
@@ -45,7 +47,10 @@
     "cursor_json",
     "reason",
     "started_at",
-    "ended_at"
+    "ended_at",
+    "writer_state",
+    "checkpoint_json",
+    "outcomes_json"
   ],
   "ReplyLedger": [
     "message_id",
@@ -63,7 +68,9 @@
     "send_status",
     "send_attempted_at",
     "sent_message_id",
-    "reason"
+    "reason",
+    "draft_status",
+    "review_status"
   ],
   "Settings": [
     "key",
