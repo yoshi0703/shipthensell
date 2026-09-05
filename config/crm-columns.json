@@ -10,6 +10,7 @@
     "form_url",
     "sender_fields",
     "body",
+    "consent_checks",
     "payload_sha256",
     "facts_json",
     "evidence_json",

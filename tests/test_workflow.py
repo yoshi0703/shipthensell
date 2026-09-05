@@ -24,7 +24,7 @@ def configured():
 
 def row():
     return {'row_id':'001','corporate_key':'demo-key','company':'Demo Co','form_url':'https://example.com/contact',
-            'sender_fields':{'name':'Test Sender','email':'test@example.com'},'body':'Hello, example.'}
+            'sender_fields':{'name':'Test Sender','email':'test@example.com'},'body':'Hello, example.', 'consent_checks':[]}
 
 
 class WorkflowTests(unittest.TestCase):
@@ -58,9 +58,22 @@ class WorkflowTests(unittest.TestCase):
         for key in s.PAYLOAD_FIELDS:
             changed=copy.deepcopy(original)
             if key=='sender_fields':changed[key]['email']='changed@example.com'
+            elif key=='consent_checks':changed[key]=[{'label':'Agree to privacy policy','urls':['https://example.com/privacy'],'required':True,'checked':True}]
             elif key=='form_url':changed[key]='https://example.com/changed'
             else:changed[key]+=' changed'
             self.assertNotEqual(baseline,s.manifest([changed])['manifest_sha256'],key)
+
+    def test_consent_snapshot_is_bound_and_required(self):
+        a=row()
+        a['consent_checks']=[{'label':'Agree to terms','urls':['https://example.com/terms'], 'required':True,'checked':True}]
+        original=s.manifest([a])['manifest_sha256']
+        for key,value in [('label','Changed terms'),('urls',['https://example.com/new']),('required',False)]:
+            b=copy.deepcopy(a);b['consent_checks'][0][key]=value
+            self.assertNotEqual(original,s.manifest([b])['manifest_sha256'])
+        b=copy.deepcopy(a);b['consent_checks'][0]['checked']=False
+        with self.assertRaises(ValueError):s.manifest([b])
+        b=row();del b['consent_checks']
+        with self.assertRaises(KeyError):s.manifest([b])
 
     def test_manifest_stable_order_and_duplicate_rejection(self):
         a=row();b=row();b.update(row_id='002',corporate_key='other')

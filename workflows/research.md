@@ -22,7 +22,13 @@ compose a short message from approved product facts and verified recipient facts
 Separate facts from hypotheses. Rank observations require query/location/time;
 no fixed rank threshold is assumed for non-local products. Skip no form,
 no-sales, consumer support/recruiting/booking-only forms, CAPTCHA, login, upload,
-user-only consent, identity mismatch, blocklist or recent contact. Record why.
+a host-required personal consent action, identity mismatch, blocklist or recent
+contact. Record why. Eligibility checks are limited to the form page as specified
+in common.md. Do not open linked policy pages to investigate sales restrictions.
+Record terms/privacy checkboxes in consent_checks: exact visible label, linked
+absolute URLs, required boolean and checked=true for the intended operation.
+Use an explicit empty list if no consent checks apply. Do not check them during
+research. Do not select unrelated subscription/marketing opt-ins.
 
 Deduplicate every corporate_key against previous candidates and contact history.
 Only count unique assigned candidates processed in this run; nonassigned results
@@ -35,7 +41,7 @@ Save eligible rows as pending_approval: all fields in crm-columns.json, immutabl
 row_id, campaign, research_run_id, corporate_key, shard, official URL chain,
 recipient company, exact form URL, complete sender_fields JSON, exact body,
 verified facts/evidence and observed_at. Compute payload SHA with the helper over
-row_id, corporate_key, company, form_url, sender_fields and body; read back all
+row_id, corporate_key, company, form_url, sender_fields, body and consent_checks; read back all
 values. Unspecified form fields are not authorized. Workers write unique lead rows
 and separate Runs rows, never shared counters. The coordinator derives totals
 from all persisted worker records. Complete only if every expected wave/shard

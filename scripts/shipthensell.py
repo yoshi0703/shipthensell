@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 ROOT = Path(__file__).resolve().parents[1]
 PRIVATE = ROOT / '.shipthensell'
-PAYLOAD_FIELDS = ('row_id', 'corporate_key', 'company', 'form_url', 'sender_fields', 'body')
+PAYLOAD_FIELDS = ('row_id', 'corporate_key', 'company', 'form_url', 'sender_fields', 'body', 'consent_checks')
 
 
 def canonical(value):
@@ -141,10 +141,21 @@ def shard(key, count):
 
 def payload(row):
     p = {k: row[k] for k in PAYLOAD_FIELDS}
-    if any(not nonempty(p[k]) for k in PAYLOAD_FIELDS if k != 'sender_fields') or not https(p['form_url']):
+    if any(not nonempty(p[k]) for k in PAYLOAD_FIELDS if k not in ('sender_fields', 'consent_checks')) or not https(p['form_url']):
         raise ValueError('Incomplete approval payload')
     if not isinstance(p['sender_fields'], dict) or not p['sender_fields'] or not all(nonempty(v) for v in p['sender_fields'].values()):
         raise ValueError('Sender fields must contain all exact field values')
+    if not isinstance(p['consent_checks'], list):
+        raise ValueError('consent_checks must be an explicit list, empty if none')
+    for consent in p['consent_checks']:
+        if (not isinstance(consent, dict)
+                or set(consent) != {'label', 'urls', 'required', 'checked'}
+                or not nonempty(consent['label'])
+                or not isinstance(consent['urls'], list)
+                or not all(https(url) for url in consent['urls'])
+                or type(consent['required']) is not bool
+                or consent['checked'] is not True):
+            raise ValueError('Consent requires exact label, HTTPS URLs, required flag and checked=true')
     canonical(p)
     return p
 

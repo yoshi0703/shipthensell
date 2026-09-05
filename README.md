@@ -67,7 +67,9 @@ must be verified on your account. This release supports one host per CRM.
 
 Approve the exact initial outreach batch before any form input. Respect no-sales
 notices and opt-outs. Browser confirmations, CAPTCHA and user-only privacy consent
-remain human steps; the workflow stops instead of bypassing them. Unknown send
+remain subject to host tool rules. The batch approval includes listed form
+terms/privacy checkboxes when delegated operation is allowed. Eligibility checks
+cover the form page only, without crawling linked policies; known bans still apply. Unknown send
 results are recorded and never retried automatically. Meeting times are proposals;
 no calendar invitations are created.
 

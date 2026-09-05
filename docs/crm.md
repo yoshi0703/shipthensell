@@ -15,6 +15,21 @@ encoding: ASCII keys, UTF-8, sorted keys, no whitespace, no NaN/floats. Values a
 strings/integers/booleans/null/lists/objects. This is a repository-specific format,
 not a claim of full RFC 8785 support. Use the helper, never model-computed hashes.
 
+## Consent snapshot and upgrade
+
+Leads.consent_checks is a JSON array of objects with exact visible label, urls
+(array of absolute HTTPS links), required (boolean), and checked=true. Use []
+when no consent check applies. The approval payload includes this entire array.
+Only terms/privacy acceptance necessary for this inquiry is in scope; unrelated
+marketing opt-ins, purchases and contract execution are excluded. Page labels
+and URLs are recorded without claiming review of linked policies.
+
+Existing installations: pause all three tasks, add consent_checks to Leads,
+inspect each pending form page, populate the snapshot, recompute payload hashes
+and obtain new batch approval. Never reuse old approvals lacking this field.
+Update CRM Settings and all pinned prompts together, then resume the same IDs.
+Keep prior attempts and sent rows intact; never reset them during migration.
+
 ## State and retries
 
 Leads: pending_approval → approved → attempted → sent, or skipped/needs_review.

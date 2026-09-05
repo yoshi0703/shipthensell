@@ -25,7 +25,10 @@ and two waves, at most 50 candidates per worker: 300 researched candidates, not
 shard (150 total) by default; skipped/uncertain results are reported separately.
 Change these limits deliberately in private config before activation.
 
-Form inputs and submissions wait for a complete batch approval. Draft-only is
+Form inputs, listed terms/privacy checkbox operations and submissions wait for
+a complete batch approval. Consent labels and URLs appear in that approval;
+linked policies are not separately investigated. Host-required personal consent
+steps still stop the item. Draft-only is
 the default for replies. Users may explicitly authorize `send_after_quality_gate`
 for positive, question and scheduling replies within the recorded campaign.
 That mode does not authorize cold email, other recipients, forwarding, bookings,
