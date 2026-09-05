@@ -24,7 +24,9 @@ def configured():
 
 def row():
     return {'row_id':'001','corporate_key':'demo-key','company':'Demo Co','form_url':'https://example.com/contact',
-            'sender_fields':{'name':'Test Sender','email':'test@example.com'},'body':'Hello, example.', 'consent_checks':[]}
+            'sender_fields':{'name':'Test Sender','email':'test@example.com'},
+            'field_bindings':[{'key':'name','name':'お名前','label':'お名前','required':True},
+                              {'key':'email','name':'email','label':'メール','required':True}],'body':'Hello, example.', 'consent_checks':[]}
 
 
 class WorkflowTests(unittest.TestCase):
@@ -59,6 +61,7 @@ class WorkflowTests(unittest.TestCase):
             changed=copy.deepcopy(original)
             if key=='sender_fields':changed[key]['email']='changed@example.com'
             elif key=='consent_checks':changed[key]=[{'label':'Agree to privacy policy','urls':['https://example.com/privacy'],'required':True,'checked':True}]
+            elif key=='field_bindings':changed[key][0]['label']='変更後の名前'
             elif key=='form_url':changed[key]='https://example.com/changed'
             else:changed[key]+=' changed'
             self.assertNotEqual(baseline,s.manifest([changed])['manifest_sha256'],key)
@@ -117,7 +120,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual([x['phase'] for x in plan['tasks']],['research','outreach','replies'])
             for task in plan['tasks']:
                 self.assertEqual(task['initial_status'],'PAUSED')
-                self.assertIn(s.file_hash(root/'workflows/replies.md'),task['prompt'])
+                self.assertIn(s.file_hash(root/f'workflows/{task["phase"]}.md'),task['prompt'])
                 self.assertIn(s.file_hash(cfg),task['prompt'])
             self.assertEqual(plan['tasks'][0]['schedule_intent'],{'daily_at':'03:00'})
             self.assertEqual(plan['tasks'][2]['schedule_intent'],{'every_hours':3})

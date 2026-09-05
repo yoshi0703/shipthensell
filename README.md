@@ -83,3 +83,14 @@ Try the setup with test data, report the precise step that failed, or improve an
 adapter/workflow. Do not include real prospect data or email contents in issues.
 See [CONTRIBUTING.md](CONTRIBUTING.md). Community project; not affiliated with or
 endorsed by OpenAI. Licensed under MIT.
+
+## Workflow v2
+
+Qualified saved rows can proceed after a reconciled partial research run. Prior
+unattempted backlog is carried forward with fresh checks; daily per-shard limits
+include every run and resume. Pending approval releases ownership only after all
+workers are confirmed stopped and checkpoints are durable. Reply monitoring can
+then continue. Coordinator approval handoff is conditional on host support.
+See [migration and approval scope](docs/crm.md) before upgrading: v2 form bindings
+require new approval for unattempted rows. Explicit approvals and no-retry rules
+remain in force. Copywriting uses verified recipient facts and one relevant offer.

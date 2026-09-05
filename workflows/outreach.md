@@ -1,50 +1,78 @@
 # Outreach coordinator and workers
 
 Follow common.md. No prospect discovery or new copy in this phase.
-Find exactly one completed research coordinator run for today's campaign-local
-date and pinned config hash. Verify every expected wave/shard worker record and
-unique processed count from CRM; pending approvals alone do not prove completion.
-If missing, duplicate or partial, stop before creating send workers. Exclude
-already-attempted rows across every prior run. No eligible rows: record zero.
+Acquire sole campaign writer ownership on this host. Reconcile all source research
+runs for this campaign and pinned config hash, including earlier local dates.
+Use research_ready on every source run's dispatched task records and persisted
+outcomes; verify each selected lead's row_id, prepared outcome and payload readback.
+Missing/duplicate worker records or active writers block that source run. A closed,
+reconciled partial run can contribute its fully saved prepared rows. Record all
+excluded runs and reasons. Never change a lead's original research_run_id.
 
-Create one standalone worker per shard via create_thread, with pinned hashes,
-project, model/effort, research_run_id and send_run_id. No subagents or child tasks.
-Pass only at most send_attempts_per_shard oldest eligible rows, ordered by row_id;
-remaining rows stay pending and are reported as deferred (not sent or silently
-moved to a later research run). Persist IDs and track each to completion. Keep
-send run open while a worker waits for approval; do not detach and unlock it.
+Read the whole-CRM attempt index, cooldown and blocklist. Use select_backlog with
+eligible source run IDs, campaign-local date/timezone and configured shard/budget.
+Order by immutable prepared_at, then row_id. Count all attempts on this local date
+per shard across all send runs, including unknown results and resumed checkpoints.
+A resume on another local date recomputes that day's budget. Persist selected IDs
+and deferred IDs; deferred unattempted rows remain eligible next day. Zero eligible
+rows is a recorded zero, not an error. Revalidate old form/product evidence before
+approval; changed payload needs research preparation and fresh approval.
 
-Worker: re-read blocklist, whole-CRM cooldown, identity, exact URL/fields/body and
-attempt history. Freeze the rows in ascending row_id using helper `manifest`.
-Present every recipient/company, official form URL, sender field, full message,
-row ID and payload hash, plus manifest hash and count. Ask for one explicit batch
-approval covering input, the listed terms/privacy checkbox operations and one
-submit per unchanged row. Show every consent label and linked URL; state that
-linked policy pages were not reviewed. Do not summarize unseen terms as safe. Use a permitted host
-confirmation mechanism. Missing/empty/denied answers are not authorization;
-without a supported mechanism leave pending. Never input third-party forms first.
-Do not treat any arbitrary nonempty answer as approval; it must clearly approve
-this exact manifest in this worker task. Record approval evidence/task/time/hash.
+Create at most one standalone worker per shard via create_thread with pinned
+hashes, project/model/effort, campaign, source run IDs, send_run_id, assigned row IDs
+and remaining daily budget. No subagents/child tasks. Persist every task ID and
+track it to host-confirmed termination. Workers process their assigned rows only.
 
-After approval, process sequentially. Re-read the complete row and blocklist and
-compare to approved payload; any changed field requires reapproval of that row.
-Re-open the official URL via Codex's in-app browser and inspect current purpose,
-identity, no-sales restrictions, CAPTCHA/auth/consent and required fields on the
-form page only. Do not investigate linked policy pages. Compare all consent
-labels, URLs and required flags to the approved snapshot. Changed or additional
-consent requires reapproval before checking it. Perform approved terms/privacy
-checks without a separate consent approval when host tools allow delegation. Host
-browser confirmations still apply. If extra fields or changed form require new
-values, do not invent them. Stop that item before input. Enforce the per-shard
-attempt budget by CRM readback, including unknown results and earlier attempts.
+Freeze exact rows using manifest, including field bindings and consent checks.
+Present every company, form URL, complete field values/bindings, full subject/body,
+consent labels/URLs/required flags, row ID and payload hash, manifest hash and count.
+State linked policies were not reviewed. Request explicit approval for input,
+listed terms/privacy operations and one submit per unchanged row. Never summarize
+unseen terms as safe or input before approval. Missing, empty, denied, timed-out
+or arbitrary nonempty answers do not authorize anything; use a permitted host
+confirmation mechanism, otherwise persist pending_user.
 
-Input the exact approved fields, verify the confirmation screen if present,
-write submission_attempted_at to CRM and read it back before clicking submit
-once. On failed readback stop the entire worker. No Enter submission, double click
-or retries. Only an explicit success message, receipt or verified completion page
-proves success; HTTP 200, empty fields or a disappeared button do not.
-Save sent_at and evidence only for confirmed success. Unknown result retains the
-attempt, becomes needs_review and stops the worker. CRM failure after a send also
-stops it without retry. Coordinator closes run only after every worker is terminal
-(completed, pending_user, partial or failed) and no live writer remains. Record
-attempts, confirmed sends, deferred rows and failures independently.
+When the host explicitly supports approval handoff, the coordinator may present
+the full combined manifest once. Build approval_scope(campaign, send_run_id,
+config_hash, rows), show its digest, and record decision=approved, scope_sha256,
+evidence, approved_at and task_id from actual explicit user approval. Workers use
+approval_covers on their subset and fresh rows. Handoff requires verified host
+support, never an assumed boolean. If unsupported, each worker presents its own
+scope/manifest and obtains approval in that task. Split oversized displays into
+complete separately approved batches; unseen/truncated text is never approved.
+Host browser confirmations and personal consent gates remain independent.
+
+For pending approval, workers save exact scope/manifest, pending row IDs, budget,
+cursor and reason in checkpoint_json, read back and terminate. The coordinator
+checks all dispatched worker IDs against host terminal evidence and saved records;
+use approval_checkpoint before saving the coordinator checkpoint and readback.
+Only then set writer_state=closed. If any termination/readback is unverified, keep
+ownership active and defer replies. Timeouts cannot release ownership. A user
+answer to an old task must not restart its writer. Resume only through the single
+coordinator after fresh ownership, config/pin/identity checks, current row,
+blocklist, cooldown and all-run attempt reads. Restore saved approval scope (and
+original send_run_id), recheck handoff support, payloads and budget. Stale approval
+is not permission to reconstruct changed payloads or invent approval evidence.
+
+After approval, sequentially re-read each complete row and blocklist. Compare
+canonical payload to the approved snapshot; only payload changes invalidate
+approval. Internal state, approval_json and bookkeeping changes alone do not.
+Fresh eligibility, product facts and attempt checks can still veto an unchanged
+payload. Re-open the HTTPS official form in the in-app browser, inspect identity,
+purpose, no-sales notices, CAPTCHA/auth/personal consent and required fields on
+that page only. Compare field bindings and consent label/URL/required flags to the
+snapshot. Any new value, field or consent change returns that item for preparation
+and reapproval before input. Do not crawl policy pages or invent values.
+
+Immediately before input and again before submit, enforce the remaining daily
+per-shard budget against fresh CRM attempts from all runs. Input only approved
+strings, perform listed permitted consent checks and inspect confirmation screens.
+Write immutable submission_attempted_at and read it back before clicking submit
+once. No Enter submission, double click or retries. Failed marker readback stops
+the worker. Explicit success message/receipt/completion page is required to save
+sent_at and success evidence; HTTP 200 or a missing button is insufficient.
+Unknown result retains the attempt, becomes needs_review and stops that worker.
+Post-send CRM failure also stops it without retry. The coordinator closes writer
+ownership only after every worker is terminal and durable. Report confirmed sends,
+attempts, deferred rows, pending approvals and failures separately. pending_user
+means unfinished business even when writer_state is closed.
