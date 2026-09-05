@@ -1,0 +1,6 @@
+interface:
+  display_name: "ShipThenSell setup"
+  short_description: "Connect your product and schedule its sales workflow"
+  default_prompt: "Set up ShipThenSell for my product using the setup skill."
+policy:
+  allow_implicit_invocation: true

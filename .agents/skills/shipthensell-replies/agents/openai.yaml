@@ -1,0 +1,6 @@
+interface:
+  display_name: "ShipThenSell Reply triage"
+  short_description: "Run the configured replies workflow"
+  default_prompt: "Use $shipthensell-replies for the configured campaign and current pinned run."
+policy:
+  allow_implicit_invocation: true

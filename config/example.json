@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "campaign": "my-product",
+  "product": {
+    "name": "",
+    "url": "",
+    "description": "",
+    "approved_facts": []
+  },
+  "sender": {
+    "company": "",
+    "name": "",
+    "email": "",
+    "phone": ""
+  },
+  "target": {
+    "region": "",
+    "industry": "",
+    "language": "en",
+    "queries": []
+  },
+  "connections": {
+    "crm_spreadsheet_id": "",
+    "google_account": "",
+    "gmail_account": "",
+    "calendar_id": "primary"
+  },
+  "schedule": {
+    "timezone": "Asia/Tokyo",
+    "research_time": "03:00",
+    "outreach_time": "10:00",
+    "reply_interval_hours": 3
+  },
+  "runtime": {
+    "model": "",
+    "reasoning_effort": "high",
+    "shards": 3,
+    "waves": 2,
+    "items_per_worker": 50,
+    "send_attempts_per_shard": 50,
+    "cooldown_days": 180
+  },
+  "reply": {
+    "mode": "draft_only",
+    "auto_send_authorization": "",
+    "business_start": "10:00",
+    "business_end": "17:00",
+    "duration_minutes": 30,
+    "candidate_count": 3
+  },
+  "enabled": false
+}

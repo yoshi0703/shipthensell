@@ -1,0 +1,6 @@
+interface:
+  display_name: "ShipThenSell Prospect research"
+  short_description: "Run the configured research workflow"
+  default_prompt: "Use $shipthensell-research for the configured campaign and current pinned run."
+policy:
+  allow_implicit_invocation: true

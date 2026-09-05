@@ -1,0 +1,6 @@
+interface:
+  display_name: "ShipThenSell Approved form outreach"
+  short_description: "Run the configured outreach workflow"
+  default_prompt: "Use $shipthensell-outreach for the configured campaign and current pinned run."
+policy:
+  allow_implicit_invocation: true
